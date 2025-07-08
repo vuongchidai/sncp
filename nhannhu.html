@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Lời nhắn sinh nhật</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #fefefe;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .message-box {
+      max-width: 600px;
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      padding: 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 15px;
+    }
+
+    .message-box img {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+    }
+
+    .message-content {
+      flex: 1;
+    }
+
+    .message-content p {
+      font-size: 18px;
+      color: #444;
+      margin: 10px 0;
+      white-space: pre-wrap;
+    }
+
+    .button-group {
+      margin-top: 15px;
+    }
+
+    .button-group button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 10px;
+      margin-right: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-yes {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    .btn-yes:hover {
+      background-color: #45a049;
+    }
+
+    .btn-ok {
+      background-color: #2196F3;
+      color: white;
+    }
+
+    .btn-ok:hover {
+      background-color: #1e87dc;
+    }
+
+    .btn-next {
+      background-color: #FF9800;
+      color: white;
+    }
+
+    .btn-next:hover {
+      background-color: #e08900;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="message-box" id="step1">
+    <img src="https://i.pinimg.com/originals/17/a9/46/17a946921da91360e395d666e9813258.gif" alt="icon">
+    <div class="message-content">
+      <p id="msg1"></p>
+      <div class="button-group">
+        <button class="btn-yes hidden" id="btn1" onclick="showStep2()">Có</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="message-box hidden" id="step2">
+    <img src="https://i.pinimg.com/originals/17/a9/46/17a946921da91360e395d666e9813258.gif" alt="icon">
+    <div class="message-content">
+      <p id="msg2"></p>
+      <div class="button-group">
+        <button class="btn-ok hidden" id="btn2" onclick="showStep3()">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="message-box hidden" id="step3">
+    <img src="https://i.pinimg.com/originals/17/a9/46/17a946921da91360e395d666e9813258.gif" alt="icon">
+    <div class="message-content">
+      <p id="msg3"></p>
+      <div class="button-group">
+        <button class="btn-next hidden" id="btn3" onclick="redirectToIntro()">Tiếp tục</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function typeText(elementId, text, callback) {
+      const el = document.getElementById(elementId);
+      el.textContent = "";
+      let i = 0;
+      const interval = setInterval(() => {
+        el.textContent += text.charAt(i);
+        i++;
+        if (i >= text.length) {
+          clearInterval(interval);
+          if (callback) callback();
+        }
+      }, 50);
+    }
+
+    function showStep2() {
+      document.getElementById('step1').classList.add('hidden');
+      document.getElementById('step2').classList.remove('hidden');
+      typeText('msg2', 'Òm! Chúc cậu một ngày đặc biệt nha, ngày mà cậu được sinh ra trên đời. Mình chúc cậu luôn vui vẻ, đẹp trai và đạt được nhiều điều mong muốn hơn nữa', () => {
+        document.getElementById('btn2').classList.remove('hidden');
+      });
+    }
+
+    function showStep3() {
+      document.getElementById('step2').classList.add('hidden');
+      document.getElementById('step3').classList.remove('hidden');
+      typeText('msg3', 'Cậu nhấn tiếp tục để màn trình diễn bắt đầu nha', () => {
+        document.getElementById('btn3').classList.remove('hidden');
+      });
+    }
+
+    function redirectToIntro() {
+      window.location.href = "chaomung.html";
+    }
+
+    window.onload = function() {
+      typeText('msg1', 'Cậu có biết hôm nay là ngày gì không?', () => {
+        document.getElementById('btn1').classList.remove('hidden');
+      });
+    }
+  </script>
+</body>
+</html>

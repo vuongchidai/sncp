@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chúc Mừng Sinh Nhật 3D</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background: linear-gradient(to bottom, #232526, #414345 90%);
+      overflow: hidden;
+      font-family: 'Segoe UI', sans-serif;
+      perspective: 1000px;
+    }
+    .scene {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.1s ease-out;
+    }
+    .center-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 48px;
+      font-weight: bold;
+      color: #f5f5f5;
+      white-space: nowrap;
+      text-shadow: 3px 3px 8px #1a1a1a;
+      z-index: 10;
+      letter-spacing: 2px;
+    }
+    .countdown {
+      position: fixed;
+      top: 10px;
+      right: 20px;
+      background: rgba(30, 30, 40, 0.7);
+      color: #f5f5f5;
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 18px;
+      font-weight: bold;
+      z-index: 9999;
+      opacity: 0.92;
+      border: 1px solid #444;
+    }
+    .music-btn {
+      position: fixed;
+      top: 10px;
+      left: 20px;
+      background: rgba(60, 60, 70, 0.85);
+      color: #00b4d8;
+      border: none;
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      font-size: 24px;
+      cursor: pointer;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+      transition: background 0.2s, color 0.2s;
+      border: 1.5px solid #222;
+    }
+    .music-btn.active {
+      background: #00b4d8;
+      color: #fff;
+      border-color: #00b4d8;
+    }
+    .music-guide {
+      position: fixed;
+      top: 10px;
+      left: 80px;
+      max-width: 260px;
+      background: #232526;
+      color: #00b4d8;
+      border-radius: 18px;
+      padding: 14px 20px 14px 16px;
+      font-size: 17px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.13);
+      z-index: 9999;
+      animation: fadeGuide 0.5s;
+      user-select: none;
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      border: 1.5px solid #444;
+    }
+    .music-guide-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: #00b4d8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-right: 2px;
+      border: 2px solid #222;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+      flex-shrink: 0;
+      color: #fff;
+    }
+    @keyframes fadeGuide {
+      from { opacity: 0; transform: translateY(-10px);}
+      to { opacity: 1; transform: translateY(0);}
+    }
+    .falling-msg, .falling-icon {
+      position: absolute;
+      top: -60px;
+      font-weight: bold;
+      opacity: 0.92;
+      pointer-events: none;
+      transform-style: preserve-3d;
+    }
+    .falling-msg {
+      color: #00b4d8;
+      font-size: 24px;
+      animation: fallMsg linear infinite;
+      text-shadow: 1px 2px 8px #232526;
+    }
+    .falling-icon {
+      color: #ffd166;
+      font-size: 28px;
+      animation: fallIcon linear infinite;
+      text-shadow: 1px 2px 8px #232526;
+    }
+    @keyframes fallMsg {
+      0% { transform: translateY(-60px) translateZ(0px); opacity: 1; }
+      100% { transform: translateY(100vh) translateZ(-200px); opacity: 0; }
+    }
+    @keyframes fallIcon {
+      0% { transform: translateY(-60px) rotate(0deg) translateZ(0px); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(360deg) translateZ(-300px); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="countdown" id="countdown" style="display:none;">01:00</div>
+  <button class="music-btn" id="musicBtn" title="Bật nhạc" aria-label="Bật nhạc">
+    <span id="musicIcon">🔇</span>
+  </button>
+  <div class="music-guide" id="musicGuide">
+    <div class="music-guide-avatar">🗣️</div>
+    <div>
+      <b>Chào bạn!</b><br>
+      <span>Hãy <b>bấm nút nhạc</b> <span style="color:#f72585;">🔇</span> ở góc trái để bắt đầu nhé, khi bấm vào giây mới bắt đầu đếm để nhận tình cảm tiếp theo!</span>
+    </div>
+  </div>
+  <video id="bgm" style="display: none" preload="auto" loop>
+    <source src="https://files.catbox.moe/obhjbc.mp4" type="video/mp4">
+    Trình duyệt của bạn không hỗ trợ video.
+  </video>
+  <div class="scene" id="scene">
+    <div class="center-text">✨ Chúc Mừng Sinh Nhật Cao Phong✨</div>
+  </div>
+  <script>
+    const iconList = ["🎂", "🎉", "🎈", "🎁", "🍰", "✨", "🥳", "💝"];
+    const messages = [
+      "Chúc mừng sinh nhật vui vẻ!",
+      "Tuổi mới thên nhiều niềm vui!",
+      "Chúc đạt được ước mơ!",
+      "Một ngày thật đặc biệt!",
+      "Chúc sức khỏe dồi dào!",
+      "Sinh nhật hạnh phúc nhé!",
+      "Mọi điều tốt đẹp!",
+      "Chúc bạn luôn tươi cười!",
+      "Ngày sinh nhật thật ý nghĩa!",
+      "Chúc bạn mãi mãi trẻ trung!",
+      "Chúc bạn luôn thành công!",
+      "Hay ăn chóng lớn",
+      "Có một không khí thoải mái",
+      "Trưởng thành hơn từng ngày"
+    ];
+
+    const scene = document.getElementById('scene');
+
+    function createFallingItem(type = 'icon') {
+      const span = document.createElement('span');
+      span.className = type === 'icon' ? 'falling-icon' : 'falling-msg';
+      span.innerText = type === 'icon' 
+        ? iconList[Math.floor(Math.random() * iconList.length)] 
+        : messages[Math.floor(Math.random() * messages.length)];
+      span.style.left = Math.random() * 100 + 'vw';
+      span.style.animationDuration = (type === 'icon' ? (2 + Math.random() * 2) : (5 + Math.random() * 4)) + 's';
+      span.style.fontSize = (type === 'icon' ? (20 + Math.random() * 15) : (18 + Math.random() * 10)) + 'px';
+      span.style.transform = `translateZ(${Math.random() * 200 - 100}px)`;
+      scene.appendChild(span);
+
+      setTimeout(() => span.remove(), 10000);
+    }
+
+    setInterval(() => createFallingItem('icon'), 250);
+    setInterval(() => createFallingItem('msg'), 1500);
+
+    // Đếm ngược 60 giây và chuyển trang, chỉ chạy khi nhạc bật, dừng khi nhạc tắt
+    let seconds = 60;
+    const countdown = document.getElementById('countdown');
+    let countdownInterval = null;
+    let countdownStarted = false;
+
+    function updateCountdownDisplay() {
+      const m = String(Math.floor(seconds / 60)).padStart(2, '0');
+      const s = String(seconds % 60).padStart(2, '0');
+      countdown.textContent = `${m}:${s}`;
+    }
+
+    function startCountdown() {
+      if (countdownStarted) return;
+      countdownStarted = true;
+      countdown.style.display = '';
+      updateCountdownDisplay();
+      countdownInterval = setInterval(() => {
+        seconds--;
+        updateCountdownDisplay();
+        if (seconds <= 0) {
+          clearInterval(countdownInterval);
+          window.location.href = 'nhanqua.html';
+        }
+      }, 1000);
+    }
+
+    function pauseCountdown() {
+      if (countdownInterval) {
+        clearInterval(countdownInterval);
+        countdownInterval = null;
+      }
+      countdownStarted = false;
+    }
+
+    // Nhạc: trạng thái mặc định là tắt, chỉ phát khi bấm nút
+    const video = document.getElementById('bgm');
+    const musicBtn = document.getElementById('musicBtn');
+    const musicIcon = document.getElementById('musicIcon');
+    const musicGuide = document.getElementById('musicGuide');
+    let musicOn = false;
+    let firstPlay = true;
+
+    function updateMusicBtn() {
+      if (musicOn) {
+        musicBtn.classList.add('active');
+        musicIcon.textContent = '🔊';
+        musicBtn.title = 'Tắt nhạc';
+        musicBtn.setAttribute('aria-label', 'Tắt nhạc');
+      } else {
+        musicBtn.classList.remove('active');
+        musicIcon.textContent = '🔇';
+        musicBtn.title = 'Bật nhạc';
+        musicBtn.setAttribute('aria-label', 'Bật nhạc');
+      }
+    }
+
+    musicBtn.addEventListener('click', () => {
+      if (!musicOn) {
+        // Nếu lần đầu bật, phát lại từ đầu
+        if (firstPlay) {
+          video.currentTime = 0;
+          firstPlay = false;
+        }
+        video.play();
+        musicOn = true;
+        // Ẩn chỉ dẫn khi đã bật nhạc
+        if (musicGuide) musicGuide.style.display = 'none';
+        // Bắt đầu đếm ngược nếu chưa chạy
+        startCountdown();
+      } else {
+        video.pause();
+        musicOn = false;
+        pauseCountdown();
+      }
+      updateMusicBtn();
+    });
+
+    // Đảm bảo nhạc không tự phát khi tải trang
+    video.pause();
+    video.muted = false;
+    updateMusicBtn();
+
+    // Ẩn chỉ dẫn khi người dùng bấm bất kỳ nơi nào trên nút nhạc
+    musicBtn.addEventListener('pointerdown', () => {
+      if (musicGuide) musicGuide.style.display = 'none';
+    });
+
+    // Hiệu ứng 3D khi di chuyển chuột
+    document.addEventListener('mousemove', (e) => {
+      const x = (e.clientX / window.innerWidth - 0.5) * 30;
+      const y = (e.clientY / window.innerHeight - 0.5) * -30;
+      scene.style.transform = `rotateY(${x}deg) rotateX(${y}deg)`;
+    });
+  </script>
+</body>
+</html>

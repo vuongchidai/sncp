@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đăng nhập hệ thống</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+    }
+
+    .login-box {
+      background: #ffffff;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    .login-box h2 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .input-group label {
+      display: block;
+      margin-bottom: 5px;
+      color: #555;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 10px;
+      transition: 0.3s;
+    }
+
+    .input-group input:focus {
+      border-color: #00c9ff;
+      outline: none;
+    }
+
+    .login-btn {
+      background: #00c9ff;
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .login-btn.loading {
+      background: #888;
+      cursor: wait;
+    }
+
+    .login-btn:hover:not(.loading) {
+      background: #00b2e2;
+    }
+
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 15px 25px;
+      border-radius: 12px;
+      font-size: 14px;
+      line-height: 1.5;
+      color: white;
+      max-width: 300px;
+      word-wrap: break-word;
+      white-space: pre-line;
+      opacity: 0;
+      transform: translateY(-20px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      z-index: 1000;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .toast.success {
+      background-color: #28a745;
+    }
+
+    .toast.error {
+      background-color: #dc3545;
+    }
+
+    .toast.warning {
+      background-color: #ffc107;
+      color: #333;
+    }
+
+    .forum-link {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #333;
+    }
+
+    .forum-link a {
+      color: #005eff;
+      text-decoration: none;
+    }
+
+    .forum-link a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <h2>Đăng nhập hệ thống</h2>
+    <div class="input-group">
+      <label for="username">Tên đăng nhập</label>
+      <input type="text" id="username" placeholder="Nhập tên đăng nhập">
+    </div>
+    <div class="input-group">
+      <label for="password">Mật khẩu</label>
+      <input type="password" id="password" placeholder="Nhập mật khẩu">
+    </div>
+    <button class="login-btn" id="loginBtn" onclick="handleLogin()">Đăng nhập</button>
+    <div class="forum-link">
+      Diễn đàn quản trị viên, nơi sửa lỗi khi có phát sinh website.
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.className = `toast show ${type}`;
+      toast.textContent = message;
+      setTimeout(() => {
+        toast.className = 'toast';
+      }, 5000);
+    }
+
+    function handleLogin() {
+      const loginBtn = document.getElementById('loginBtn');
+      loginBtn.textContent = 'Đang kiểm tra...';
+      loginBtn.classList.add('loading');
+
+      const messages = [
+        { msg: 'Hệ thống đang hoạt động bình thường, Tên đăng nhập hoặc mật khẩu có vẻ không đúng.', type: 'success' },
+        { msg: 'Hệ thống không hoạt động, lỗi HTTP.\nVui lòng không cố tình đăng nhập khi không có sự cho phép hoặc phát sinh.', type: 'error' },
+        { msg: 'Cảnh báo: bạn cần có quyền truy cập từ quản trị viên.', type: 'warning' }
+      ];
+
+      const randomDelay = Math.floor(Math.random() * 5000) + 5000;
+      const chosen = messages[Math.floor(Math.random() * messages.length)];
+
+      showToast('Đang kiểm tra trạng thái hệ thống...', 'warning');
+
+      setTimeout(() => {
+        loginBtn.textContent = 'Đăng nhập';
+        loginBtn.classList.remove('loading');
+        showToast(chosen.msg, chosen.type);
+      }, randomDelay);
+    }
+  </script>
+</body>
+</html>

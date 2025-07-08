@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Nhận Thư Sinh Nhật</title>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background: #fff;
+      font-family: 'Segoe UI', 'Arial', sans-serif;
+      overflow: hidden;
+    }
+    body {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .container {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .gift-box {
+      width: 220px;
+      height: 220px;
+      background: linear-gradient(135deg, #c0392b 60%, #e74c3c 100%);
+      position: fixed;
+      left: calc(50% - 20px);
+      top: calc(50% - 30px);
+      transform: translate(-50%, -50%);
+      border-radius: 24px;
+      cursor: pointer;
+      box-shadow: 0 12px 40px rgba(192,57,43,0.18), 0 2px 8px rgba(231,76,60,0.12) inset;
+      transition: transform 0.3s cubic-bezier(.68,-0.55,.27,1.55), box-shadow 0.3s;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 2;
+      animation: floatGift 3s ease-in-out infinite;
+    }
+    .gift-box:hover {
+      transform: translate(-50%, -50%) scale(1.07) rotate(-2deg);
+      box-shadow: 0 20px 60px rgba(192,57,43,0.22), 0 2px 8px rgba(231,76,60,0.18) inset;
+    }
+    .ribbon {
+      width: 32px;
+      height: 220px;
+      background: linear-gradient(180deg, #f7b731 70%, #fffbe6 100%);
+      position: absolute;
+      left: 94px;
+      top: 0;
+      border-radius: 16px;
+      z-index: 3;
+      box-shadow: 0 0 8px 2px #ffe06680;
+    }
+    .ribbon::before, .ribbon::after {
+      content: '';
+      position: absolute;
+      width: 32px;
+      height: 32px;
+      background: #f7b731;
+      border-radius: 50%;
+      left: 0;
+      top: -16px;
+      box-shadow: 0 0 12px #ffe06680;
+      z-index: 4;
+    }
+    .ribbon::after {
+      top: auto;
+      bottom: -16px;
+    }
+    .lid {
+      width: 220px;
+      height: 62px;
+      background: linear-gradient(90deg, #922b21 70%, #c0392b 100%);
+      border-radius: 24px 24px 0 0;
+      position: absolute;
+      top: -62px;
+      left: 0;
+      transform-origin: bottom center;
+      transition: transform 1s cubic-bezier(.68,-0.55,.27,1.55);
+      z-index: 5;
+      box-shadow: 0 8px 24px rgba(192,57,43,0.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .lid::before {
+      content: '';
+      display: block;
+      width: 52px;
+      height: 20px;
+      background: #f7b731;
+      border-radius: 10px 10px 10px 10px;
+      position: absolute;
+      left: 84px;
+      top: 14px;
+      z-index: 6;
+      box-shadow: 0 2px 8px #ffe06680;
+    }
+    .open .lid {
+      transform: rotateX(160deg) scale(1.05);
+      box-shadow: 0 24px 48px rgba(192,57,43,0.12);
+    }
+    .gift-box::after {
+      content: '';
+      position: absolute;
+      bottom: -16px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 24px;
+      background: radial-gradient(ellipse at center, #e74c3c 60%, #f5b7b1 100%);
+      border-radius: 50%;
+      opacity: 0.7;
+      z-index: 0;
+      filter: blur(2px);
+    }
+    .letter-envelope {
+      display: none;
+      position: fixed;
+      left: calc(50% - 450px);
+      top: calc(50% - 230px);
+      transform: translate(-50%, -50%);
+      width: 900px;
+      max-width: 98vw;
+      min-height: 320px;
+      background: #f9f9f9;
+      border-radius: 18px;
+      box-shadow: 0 12px 48px rgba(30,60,114,0.13);
+      border: 3px solid #1e3c72;
+      z-index: 10;
+      overflow: hidden;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.7s cubic-bezier(.68,-0.55,.27,1.55);
+    }
+    .letter-envelope.show {
+      display: flex;
+      opacity: 1;
+      pointer-events: auto;
+      animation: fadeIn 1.2s cubic-bezier(.68,-0.55,.27,1.55) forwards;
+    }
+    .envelope-flap {
+      width: 100%;
+      height: 60px;
+      background: linear-gradient(135deg, #1e3c72 60%, #2a5298 100%);
+      clip-path: polygon(0 0, 100% 0, 50% 100%);
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 11;
+    }
+    .letter-content {
+      margin-top: 70px;
+      padding: 28px 32px 28px 32px;
+      width: 100%;
+      max-height: 450px;
+      overflow-y: auto;
+      font-size: 19px;
+      line-height: 1.8;
+      color: #1e3c72;
+      background: transparent;
+      box-sizing: border-box;
+    }
+    .signature {
+      margin-top: 32px;
+      text-align: right;
+      font-weight: bold;
+      color: #162447;
+      font-size: 18px;
+      letter-spacing: 1px;
+      font-family: 'Segoe Script', cursive;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px) scale(0.98);}
+      to { opacity: 1; transform: translateY(0) scale(1);}
+    }
+    @keyframes floatGift {
+      0%, 100% { transform: translateY(0);}
+      50% { transform: translateY(-18px);}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="gift-box" onclick="openGift(this)" id="giftBox">
+      <div class="ribbon"></div>
+      <div class="lid"></div>
+    </div>
+    <div class="letter-envelope" id="letterEnvelope">
+      <div class="envelope-flap"></div>
+      <div class="letter-content">
+        <p>
+    <p>
+  Gửi cậu Cao Phong:)),
+  <br><br>
+  Hôm nay là một ngày thật đặc biệt – ngày đánh dấu sự xuất hiện của một người con trai bản lĩnh, đầy nhiệt huyết và không ngại vượt qua khó khăn trên đường đời.
+  <br><br>
+  Tớ rất vui vì đã được gặp cậu, đã được cậu trân trọng khi đọc dòng thư này, được đồng hành cùng nhau trong suốt quá trình ôn thi vào 10, những lần trò chuyện thâu đêm, những lúc cùng cười đến nghẹt thở hay lúc lặng im chia sẻ khi không cần nói gì.
+  <br><br>
+  Tớ chúc cậu trong tuổi 15 này sẽ vẫn giữ được nhiệt huyết, sự quyết tâm, sự dũng cảm để tiếp tục theo đuổi những ước mơ của riêng mình. Hãy làm những điều cậu thích, sống hết mình, và đừng quên rằng tớ lúc nào cũng luôn sẵn sàng ở đóng vai một người bạn đồng hành, lắng nghe và ủng hộ cậu đặc biệt là sự  chia sẻ trân thành từ cậu.
+  <br><br>
+  Mong rằng sinh nhật năm nay của cậu sẽ đặc biệt, ý nghĩa, và đậm âm tình bạn bè, dù code của tớ hôm nay chưa hoàn thiện mong cậu hoan hỉ và bỏ qua, góp ý cho tớ để sinh nhật mới này của cậu tớ sẽ hoàn thiện code xịn sò hơn để chúc ngày đặc biệt của cậu.
+  <br><br>
+  Chúc mừng sinh nhật nhé, Cao Phong!
+  <br><br>
+  👉 Hãy tận hưởng ngày đặc biệt này theo cách riêng của cậu nhé!
+  <br><br>
+
+        </p>
+        <div class="signature">
+          Người gửi<br>
+          <span style="font-size: 16px; color: #1e3c72;">Đại nè</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    function openGift(box) {
+      box.classList.add('open');
+      setTimeout(() => {
+        box.style.display = 'none';
+        const letter = document.getElementById('letterEnvelope');
+        letter.classList.add('show');
+      }, 1200);
+    }
+  </script>
+</body>
+</html>

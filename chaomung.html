@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dot Rain Transition</title>
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+      color: white;
+    }
+    canvas {
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+    #heartContainer {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      cursor: pointer;
+    }
+    #heart {
+      font-size: 80px;
+      transition: transform 0.3s ease;
+    }
+    #progress {
+      width: 200px;
+      height: 20px;
+      border: 2px solid white;
+      margin-top: 20px;
+      position: relative;
+    }
+    #fill {
+      height: 100%;
+      background-color: white;
+      width: 0%;
+      transition: width 2s linear;
+    }
+  </style>
+</head>
+<body>
+  <div id="heartContainer">
+    <div id="heart">❤️</div>
+      <div id="clickText">Nhấp vào đây</div>
+    <div id="progress"><div id="fill"></div></div>
+  </div>
+
+  <canvas id="matrix"></canvas>
+  <canvas id="dots"></canvas>
+  <audio id="bgMusic" autoplay loop style="display: none">
+    <source src="https://files.catbox.moe/x902or.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    const heartContainer = document.getElementById("heartContainer");
+    const fill = document.getElementById("fill");
+    const canvas = document.getElementById("dots");
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const countdownSteps = ["3", "2", "1", "🎂", "26.07.2010"];
+    const phrases = [
+      "HAPPY BIRTHDAY",
+      "CAO PHONG VUI VẺ",
+      "CUNG SỬ TỬ (LEO)",
+      "MẠNH MẼ",
+      "KIÊU HÃNH",
+      "ĐỘC LẬP - TỰ TIN",
+      "VUI VẺ",    
+    ];
+    let stepIndex = 0;
+
+    const particles = [];
+    let targets = [];
+    let currentText = "";
+    let countdownInProgress = true;
+    let countdownReadyToAdvance = true;
+    let phraseStarted = false;
+
+    function getTargetsFromText(text) {
+      const tempCanvas = document.createElement("canvas");
+      const tempCtx = tempCanvas.getContext("2d");
+      tempCanvas.width = canvas.width;
+      tempCanvas.height = canvas.height;
+      tempCtx.clearRect(0, 0, canvas.width, canvas.height);
+      tempCtx.font = "bold 100px Arial";
+      tempCtx.fillStyle = "white";
+      tempCtx.textAlign = "center";
+      tempCtx.fillText(text, canvas.width / 2, canvas.height / 2);
+      const imageData = tempCtx.getImageData(0, 0, canvas.width, canvas.height);
+      const newTargets = [];
+      for (let y = 0; y < canvas.height; y += 6) {
+        for (let x = 0; x < canvas.width; x += 6) {
+          const i = (y * canvas.width + x) * 4;
+          if (imageData.data[i + 3] > 128) {
+            newTargets.push({ x, y });
+          }
+        }
+      }
+      return newTargets;
+    }
+
+    function transitionToText(text) {
+      countdownReadyToAdvance = false;
+      targets = getTargetsFromText(text);
+      while (particles.length < targets.length) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          tx: 0,
+          ty: 0,
+          vx: 0,
+          vy: 0
+        });
+      }
+      while (particles.length > targets.length) {
+        particles.pop();
+      }
+      for (let i = 0; i < targets.length; i++) {
+        particles[i].tx = targets[i].x;
+        particles[i].ty = targets[i].y;
+      }
+    }
+
+    function allParticlesSettled(threshold = 1.5) {
+      return particles.every(p => Math.abs(p.x - p.tx) < threshold && Math.abs(p.y - p.ty) < threshold);
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#ffffff";
+
+      for (let p of particles) {
+        let dx = p.tx - p.x;
+        let dy = p.ty - p.y;
+        p.vx += dx * 0.008;
+        p.vy += dy * 0.008;
+        p.vx *= 0.8;
+        p.vy *= 0.8;
+        p.x += p.vx;
+        p.y += p.vy;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      if (countdownInProgress && !countdownReadyToAdvance && allParticlesSettled()) {
+        countdownReadyToAdvance = true;
+        setTimeout(() => {
+          stepIndex++;
+          if (stepIndex < countdownSteps.length) {
+            currentText = countdownSteps[stepIndex];
+            transitionToText(currentText);
+          } else {
+            countdownInProgress = false;
+            phraseStarted = true;
+            stepIndex = 0;
+            transitionToText(phrases[stepIndex]);
+            setInterval(() => {
+              stepIndex++;
+              if (stepIndex < phrases.length) {
+                transitionToText(phrases[stepIndex]);
+              } else {
+                window.location.href = "gioithieu.html";
+              }
+            }, 6000);
+          }
+        }, 1000);
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    function startMainEffects() {
+      const matrixCanvas = document.getElementById("matrix");
+      const matrixCtx = matrixCanvas.getContext("2d");
+      matrixCanvas.width = window.innerWidth;
+      matrixCanvas.height = window.innerHeight;
+
+      const letters = "01ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      const fontSize = 16;
+      const columns = matrixCanvas.width / fontSize;
+      const drops = Array(Math.floor(columns)).fill(1);
+
+      function drawMatrix() {
+        matrixCtx.fillStyle = "rgba(0, 0, 0, 0.05)";
+        matrixCtx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+        matrixCtx.fillStyle = "#00ff99";
+        matrixCtx.font = fontSize + "px monospace";
+
+        for (let i = 0; i < drops.length; i++) {
+          const text = letters.charAt(Math.floor(Math.random() * letters.length));
+          matrixCtx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+          if (drops[i] * fontSize > matrixCanvas.height && Math.random() > 0.975) {
+            drops[i] = 0;
+          }
+          drops[i]++;
+        }
+      }
+      setInterval(drawMatrix, 50);
+      document.getElementById("bgMusic").play();
+    }
+
+    heartContainer.addEventListener("click", () => {
+      fill.style.width = "100%";
+      setTimeout(() => {
+        heartContainer.style.display = "none";
+        currentText = countdownSteps[stepIndex];
+        transitionToText(currentText);
+        animate();
+        startMainEffects();
+      }, 2000);
+    });
+  </script>
+</body>
+</html>
