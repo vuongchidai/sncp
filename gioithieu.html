@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hiển thị ảnh từng người</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Montserrat', 'Segoe UI', sans-serif;
+      overflow: hidden;
+      position: relative;
+      --confetti1: radial-gradient(circle at 10% 20%, #e0f7fa 0 8px, transparent 9px);
+      --confetti2: radial-gradient(circle at 80% 70%, #b2ebf2 0 7px, transparent 8px);
+      --confetti3: radial-gradient(circle at 30% 80%, #81d4fa 0 6px, transparent 7px);
+      --confetti4: radial-gradient(circle at 60% 10%, #b3c6fc 0 8px, transparent 9px);
+      --confetti5: radial-gradient(circle at 90% 30%, #a7ffeb 0 7px, transparent 8px);
+      background-image: var(--confetti1), var(--confetti2), var(--confetti3), var(--confetti4), var(--confetti5);
+      background-size: cover;
+    }
+    .title {
+      font-size: 2.8rem;
+      color: #fff;
+      margin-bottom: 36px;
+      font-weight: 900;
+      letter-spacing: 2.5px;
+      text-shadow: 0 6px 32px rgba(33,147,176,0.18), 0 2px 0 #1976d2;
+      text-align: center;
+      user-select: none;
+      background: linear-gradient(90deg, #e0eafc 0%, #cfdef3 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: birthdayTitle 2s cubic-bezier(.77,0,.18,1.01) infinite alternate;
+    }
+    @keyframes birthdayTitle {
+      0% { letter-spacing: 2.5px; transform: scale(1);}
+      100% { letter-spacing: 6px; transform: scale(1.04);}
+    }
+    .member {
+      background: rgba(255, 255, 255, 0.97);
+      border-radius: 40px;
+      box-shadow: 0 16px 48px 0 rgba(33,147,176,0.18), 0 0 0 10px #b2ebf255;
+      padding: 48px 36px 36px 36px;
+      text-align: center;
+      opacity: 0;
+      transform: scale(0.8) translateY(40px);
+      transition: all 0.8s cubic-bezier(.77,0,.18,1.01);
+      max-width: 400px;
+      position: relative;
+      margin-bottom: 32px;
+      border: 3px dashed #81d4fa;
+      overflow: visible;
+    }
+    .member.active {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+      animation: popIn 1.1s cubic-bezier(.77,0,.18,1.01);
+    }
+    @keyframes popIn {
+      0% { opacity: 0; transform: scale(0.7) rotate(-10deg);}
+      60% { opacity: 1; transform: scale(1.05) rotate(2deg);}
+      100% { opacity: 1; transform: scale(1) rotate(0);}
+    }
+    .member::before, .member::after {
+      content: '';
+      position: absolute;
+      width: 36px;
+      height: 48px;
+      border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+      z-index: 2;
+      top: -38px;
+      background: linear-gradient(135deg, #81d4fa 60%, #b3c6fc 100%);
+      box-shadow: 0 4px 16px #81d4fa55;
+      animation: balloonFloat 2.5s ease-in-out infinite alternate;
+    }
+    .member::after {
+      left: auto;
+      right: 36px;
+      background: linear-gradient(135deg, #2193b0 60%, #a7ffeb 100%);
+      animation-delay: 1.2s;
+    }
+    .member::before {
+      left: 36px;
+    }
+    @keyframes balloonFloat {
+      0% { transform: translateY(0);}
+      100% { transform: translateY(-16px);}
+    }
+    .member-img-wrap {
+      position: relative;
+      display: inline-block;
+      margin-bottom: 18px;
+      z-index: 3;
+    }
+    .member-img-wrap::before {
+      content: '';
+      position: absolute;
+      inset: -16px;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, #81d4fa, #2193b0, #b3c6fc, #81d4fa 100%);
+      z-index: 0;
+      filter: blur(2.5px) brightness(1.2);
+      animation: rotate 3s linear infinite;
+    }
+    @keyframes rotate {
+      100% { transform: rotate(360deg);}
+    }
+    .member img {
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 8px solid #e0f7fa;
+      box-shadow: 0 8px 32px 0 #81d4fa55, 0 0 0 10px #b2ebf255;
+      position: relative;
+      z-index: 1;
+      transition: box-shadow 0.5s;
+      background: #fff;
+    }
+    .member.active img {
+      box-shadow: 0 0 0 14px #b3c6fcbb, 0 8px 32px 0 #81d4fa55;
+      animation: imgPulse 1.5s infinite alternate;
+    }
+    @keyframes imgPulse {
+      0% { box-shadow: 0 0 0 14px #b3c6fcbb, 0 8px 32px 0 #81d4fa55;}
+      100% { box-shadow: 0 0 0 22px #a7ffeb99, 0 8px 48px 0 #81d4fa77;}
+    }
+    .member p {
+      margin-top: 22px;
+      font-size: 2.2rem;
+      color: #2193b0;
+      font-weight: 900;
+      letter-spacing: 1.5px;
+      /* text-shadow: 0 2px 8px #b2ebf299; */
+      /* -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent; */
+      text-shadow: 0 2px 8px #fff, 0 1px 0 #b2ebf2, 0 0px 2px #1976d2;
+      /* Đổi text-shadow để chữ rõ nét hơn */
+    }
+    #musicToggle {
+      position: absolute;
+      top: 32px;
+      right: 32px;
+      background: linear-gradient(135deg, #81d4fa 0%, #2193b0 100%);
+      color: white;
+      padding: 0;
+      border: none;
+      border-radius: 50%;
+      font-size: 1.5rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 64px;
+      height: 64px;
+      box-shadow: 0 4px 16px rgba(33,147,176,0.18);
+      transition: box-shadow 0.3s, background 0.3s;
+      z-index: 10;
+      border: 2px solid #e0f7fa;
+    }
+    #musicToggle:hover {
+      box-shadow: 0 8px 32px #81d4fa55;
+      background: linear-gradient(135deg, #2193b0 0%, #81d4fa 100%);
+    }
+    #musicToggle svg {
+      width: 36px;
+      height: 36px;
+      fill: #e0f7fa;
+      pointer-events: none;
+    }
+    #musicGuide {
+      position: absolute;
+      top: 110px;
+      right: 44px;
+      background: rgba(255,255,255,0.97);
+      color: #2193b0;
+      padding: 20px 28px;
+      border-radius: 20px;
+      font-size: 1.15rem;
+      box-shadow: 0 4px 16px #b2ebf255;
+      max-width: 270px;
+      line-height: 1.7;
+      z-index: 9;
+      transition: opacity 0.4s;
+      user-select: none;
+      font-family: 'Montserrat', 'Segoe UI', sans-serif;
+      border: 2px dashed #81d4fa;
+      opacity: 0;
+      pointer-events: none;
+    }
+    #musicGuide.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    @media (max-width: 600px) {
+      .member { max-width: 98vw; padding: 24px 6px 16px 6px;}
+      .member-img-wrap::before { inset: -8px;}
+      .member img { width: 130px; height: 130px;}
+      #musicGuide { right: 6px; top: 80px; font-size: 1rem; padding: 12px 8px;}
+      #musicToggle { top: 10px; right: 10px; width: 44px; height: 44px;}
+      .member::before, .member::after { width: 22px; height: 28px; top: -22px; left: 16px; right: 16px;}
+    }
+  </style>
+</head>
+<body>
+  <audio id="bgMusic" preload="auto" loop>
+    <source src="https://files.catbox.moe/8ss9yj.mp4" type="audio/mpeg">
+    Trình duyệt của bạn không hỗ trợ phát âm thanh.
+  </audio>
+
+  <button id="musicToggle" title="Bật/Tắt nhạc">
+    <svg id="iconPause" style="display:none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+    <svg id="iconPlay" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+  </button>
+  <div id="musicGuide">Bật âm thanh lên để tiếp tục.</div>
+
+  <div class="title">Bạn đồng hành cùng cậu nè:))</div>
+  <div class="member" id="memberDisplay">
+    <img id="memberImage" src="" alt="Thành viên">
+    <p id="memberName"></p>
+  </div>
+
+  <script>
+    const members = [
+      { name: "Đại", img: "https://i.postimg.cc/DmVS5HXm/487317616-637081949482097-3285782362905892956-n.jpg" },
+      { name: "Phương Vy",  img: "https://i.postimg.cc/4yvYLwb5/504275359-677689938595791-5797876275000580325-n.jpg" },
+      { name: "Bảo Pẹp",  img: "https://i.postimg.cc/GpZ9b6XK/511897063-122137068638749899-5993216057692696367-n.jpg" },
+      { name: "Phương An",  img: "https://i.postimg.cc/pLFgg7nR/500704060-122166205082410068-7085791207864671139-n.jpg" },
+      { name: "Vy Vy Hoàng", img: "https://i.postimg.cc/639g4pbp/496921022-680924428165941-7607598142093022909-n.jpg" },
+      { name: "Bảo Trânn",  img: "https://i.postimg.cc/zfc6dLr2/139116d2-1e68-4a01-8ed2-a10ee8270aae.jpg" }
+    ];
+
+    const audio = document.getElementById("bgMusic");
+    const musicToggle = document.getElementById("musicToggle");
+    const iconPlay = document.getElementById("iconPlay");
+    const iconPause = document.getElementById("iconPause");
+    const memberDiv = document.getElementById("memberDisplay");
+    const memberImg = document.getElementById("memberImage");
+    const memberName = document.getElementById("memberName");
+    const musicGuide = document.getElementById("musicGuide");
+
+    let index = 0;
+    const totalTime = 64000;
+    const perMemberTime = totalTime / members.length;
+    let interval = null;
+
+    function showMember(i) {
+      memberImg.src = members[i].img;
+      memberName.textContent = members[i].name;
+      memberDiv.classList.remove("active");
+      void memberDiv.offsetWidth;
+      memberDiv.classList.add("active");
+    }
+
+    function continueSlideshow() {
+      if (interval) clearInterval(interval);
+      interval = setInterval(() => {
+        if (!audio.paused) {
+          index++;
+          if (index >= members.length) {
+            clearInterval(interval);
+            window.location.href = "chucmung.html";
+          } else {
+            showMember(index);
+          }
+        }
+      }, perMemberTime);
+    }
+
+    function updateMusicGuide() {
+      if (audio.paused) {
+        musicGuide.classList.add("active");
+      } else {
+        musicGuide.classList.remove("active");
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      iconPause.style.display = "none";
+      iconPlay.style.display = "inline";
+      updateMusicGuide();
+    });
+
+    musicToggle.addEventListener("click", () => {
+      if (audio.paused) {
+        audio.play();
+        iconPlay.style.display = "none";
+        iconPause.style.display = "inline";
+        showMember(index);
+        continueSlideshow();
+      } else {
+        audio.pause();
+        iconPause.style.display = "none";
+        iconPlay.style.display = "inline";
+      }
+      updateMusicGuide();
+    });
+
+    // In case user pauses audio by other means
+    audio.addEventListener("pause", updateMusicGuide);
+    audio.addEventListener("play", updateMusicGuide);
+  </script>
+</body>
+</html>
